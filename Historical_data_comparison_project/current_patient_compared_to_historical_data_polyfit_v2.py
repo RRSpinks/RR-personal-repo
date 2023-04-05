@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import os
 import seaborn as sns
 
+# CUSTOMISED PARAMETERS (edit as needed)
+attr = "liver_volume" # The attribute to analyse
+degree = 2  # Degree of the polynomial fit
 
 # Define paths
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +18,6 @@ if not os.path.exists(output_dir):
 
 # Import data
 df = pd.read_csv(os.path.join(input_dir, "Abdomen CT parameters vs Patient age, sex - out.csv"))
-attr = "liver_volume" #### CAN CHANGE THIS
 
 # Create the current patient's data
 current_patient = {
@@ -31,35 +33,33 @@ sex = current_patient['patient_sex']
 filtered_data = df.query(f'patient_age >= {min_age} and patient_age <= {max_age} and patient_sex == "{sex}" and {attr} != 0')
 filtered_data = filtered_data[['patient_age', 'patient_sex', attr]]
 
-# Calculate percentiles for each age group
-age_bins = range(min_age, max_age + 1, 5)
-age_bin_labels = [f"{age}-{age + 4}" for age in age_bins[:-1]]
-filtered_data["age_bin"] = pd.cut(filtered_data["patient_age"], bins=age_bins, labels=age_bin_labels, right=False)
-percentiles = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-
-# Set the colormap and calculate colors for percentile range
+# Set the colormap for the percentile range
 colors = [
-  [0.8, 0.2, 0.5, 0.5],  # Purple
-  [1.0, 0.0, 0.0, 0.4],  # Red
-  [1.0, 0.5, 0.0, 0.4],  # Orange
-  [1.0, 1.0, 0.0, 0.4],  # Yellow
-  [0.0, 1.0, 0.0, 0.4]   # Green
+  [0.8, 0.2, 0.5, 0.4],  # Purple
+  [1.0, 0.0, 0.0, 0.3],  # Red
+  [1.0, 0.5, 0.0, 0.3],  # Orange
+  [1.0, 1.0, 0.0, 0.3],  # Yellow
+  [0.0, 1.0, 0.0, 0.3]   # Green
 ]
 for i in range(1, 6):
     x = colors[5-i]
     colors = np.vstack([colors, x])
 
-# Bin and average the percentile level points to create a smoother percentile level
+# Define the percentiles and age bins
+age_bins = range(min_age, max_age + 1, 5)
+age_bin_labels = [f"{age}-{age + 4}" for age in age_bins[:-1]]
+filtered_data["age_bin"] = pd.cut(filtered_data["patient_age"], bins=age_bins, labels=age_bin_labels, right=False)
+percentiles = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+
+# Calcuate binned average the percentile level points to create a smoother percentile level
 age_bin_percentiles = []
 for age_bin in age_bin_labels:
     age_bin_data = filtered_data[filtered_data["age_bin"] == age_bin][attr]
     age_bin_percentiles.append([age_bin] + [np.percentile(age_bin_data, p) for p in percentiles])
 age_bin_percentiles_df = pd.DataFrame(age_bin_percentiles, columns=["age_bin"] + percentiles)
-# Convert age_bin to the middle value for plotting
 age_bin_percentiles_df["mid_age"] = [int(x.split('-')[0]) + 2.5 for x in age_bin_percentiles_df["age_bin"]]
 
 # Fit a polynomial to the binned and averaged percentile level points
-degree = 2  # Degree of the polynomial fit, you can adjust this
 age_bin_percentiles = []
 for p in percentiles:
     x = age_bin_percentiles_df["mid_age"]
@@ -168,5 +168,5 @@ plt.ylabel(attr)
 plt.xlim(left=min_age, right=max_age)
 plt.title(f"{current_patient['patient_sex']} {attr} scatterplot")
 plt.tight_layout()
-plt.show()
 plt.savefig(f"{output_dir}/{current_patient['patient_sex']}_{attr}_scatter_percentiles.png")    
+plt.show()
