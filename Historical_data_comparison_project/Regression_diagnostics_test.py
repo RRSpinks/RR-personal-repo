@@ -17,20 +17,28 @@ import numpy.random as rnd
 #### 
 #### First we must load the data, specifying the type of dataset
 # Choose the dataset
-type = 2 # Choose the type of data:
+type = 0 # Choose the type of data:
             # 0 = User
             # 1 = Real life example
             # 2 = Synthetic example
             # 3 = Synthetic example, normality issue
             # 4 = Synthetic example, homoscedasticity issue
             # 5 = Synthetic example, linearity issue
-            
+
 rnd.seed(5) # specify seed for reproducibility
 if type == 0:
     # User can specify data here
-    data = pd.read_csv('PATH') 
-    X = data['XXXX']
-    y = data['XXXX']
+    data = pd.read_csv('/home/richard/Richard/RR-personal-repo/Data/Historical_01/Input/Abdomen CT parameters vs Patient age, sex - out.csv') # User path here
+    X = data['patient_age']
+    y = data['liver_volume']
+    # Remove outliers
+    Q1 = y.quantile(0.25)
+    Q3 = y.quantile(0.75)
+    IQR = Q3 - Q1
+    outliers = ((y < (Q1 - 1.5 * IQR)) | (y > (Q3 + 1.5 * IQR)))
+    data_clean = data[~outliers]
+    X = data_clean['patient_age']
+    y = data_clean['liver_volume']
     X = sm.add_constant(X)
 
 if type == 1:
