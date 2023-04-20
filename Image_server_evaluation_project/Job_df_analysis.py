@@ -56,19 +56,21 @@ def plot_id_table(df, output_dir):
     fig.savefig(f"{output_dir}/Feature_ID_table.png")    
     #plt.show()
     
-# Function to plot daily job count vs feature IDs
-def plot_daily_job_count(df, output_path):
-    # Create figure
-    fig, ax = plt.subplots()
-    ax.bar(df['template_id'].astype(str), df['mean'], yerr=df['std'])
-    plt.xticks(rotation=0, ha='center')
-    ax.tick_params(axis='x', which='major', labelsize=8)
-    ax.set_xticklabels(df['template_id'].astype(str))
-    ax.set_ylabel('Jobs  /  Day')
-    ax.set_title('Daily Count for Feature ID (mean +/- SD)')
+def plot_id_table(df, output_dir):
+    # Plot table with IDs and corresponding names
+    id_name_table = df[['template_id', 'name']].values.tolist()
+    fig, ax = plt.subplots(figsize=(6, len(id_name_table) * 0.3))  # Adjust the height of the figure based on the number of rows in the table
+    ax.axis('off')  # Remove the axis
+    table = plt.table(cellText=id_name_table, colLabels=['ID', 'Name'], loc='upper center', cellLoc='left', colWidths=[0.15, 0.8])
+    table.auto_set_font_size(False)
+    table.set_fontsize(7)
     plt.tight_layout()
-    fig.savefig(f"{output_path}/Feature_ID_daily_count.png")    
+    # Save and show figure
+    fig.savefig(f"{output_dir}/Feature_ID_table.png")    
     #plt.show()
+    # Save the table as a CSV file
+    id_name_df = pd.DataFrame(id_name_table, columns=['ID', 'Name'])
+    id_name_df.to_csv(f"{output_dir}/Feature_ID_table.csv", index=False)
 
 # Function to plot daily job count vs weekday    
 def plot_weekday_job_count(df, output_path):
@@ -119,6 +121,5 @@ job_dt_df, mean_jobs_df = calc_mean_job_count_df(job_merged_df)
 mean_attempts_df = calc_mean_attempts_df(job_merged_df)
 mean_weekdays_df = calc_mean_weekdays_df(job_dt_df)
 plot_id_table(mean_jobs_df,output_dir)       
-plot_daily_job_count(mean_jobs_df, output_dir)
 plot_weekday_job_count(mean_weekdays_df, output_dir)
 plot_job_attempts_count(mean_attempts_df, output_dir)
