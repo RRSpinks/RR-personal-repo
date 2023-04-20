@@ -5,7 +5,7 @@ import os
 import seaborn as sns
 
 # CUSTOMISED PARAMETERS (edit as needed)
-attr = "liver_volume" # The attribute to analyse
+attr = "liver_hu_mean" # The attribute to analyse
 degree = 2  # Degree of the polynomial fit
 
 # Define paths
@@ -23,7 +23,7 @@ df = pd.read_csv(os.path.join(input_dir, "Abdomen CT parameters vs Patient age, 
 current_patient = {
     "patient_sex": "male",
     "patient_age": 35,
-    attr: 2000,
+    attr: 60,
 }
 
 # Filter the data by patient_sex, patient_age
@@ -165,6 +165,7 @@ plt.annotate("",
 plt.legend(loc='upper right', borderaxespad=0.2, fontsize=9)
 plt.xlabel("Patient Age")
 plt.ylabel(attr)
+#plt.ylim(top=0.5)
 plt.xlim(left=min_age, right=max_age)
 plt.title(f"{current_patient['patient_sex']} {attr} scatterplot")
 plt.tight_layout()
