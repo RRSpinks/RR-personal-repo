@@ -17,10 +17,10 @@ import numpy.random as rnd
 #### 
 #### First we must load the data, specifying the type of dataset
 # Choose the dataset
-type = 0 # Choose the type of data:
+type = 5 # Choose the type of data:
             # 0 = User
-            # 1 = Real life example
-            # 2 = Synthetic example
+            # 1 = Real life example, suits linear regression
+            # 2 = Synthetic example, suits linear regression
             # 3 = Synthetic example, normality issue
             # 4 = Synthetic example, homoscedasticity issue
             # 5 = Synthetic example, linearity issue
@@ -76,7 +76,7 @@ if type == 4:
     X = sm.add_constant(X)
 
 if type == 5:
-    # Example dataset 5  (This is synthetic data that violates the homoscedasticity assumptions of linear regression)
+    # Example dataset 5  (This is synthetic data that violates the linearity assumptions of linear regression)
     x = np.linspace(0, 10, 100)
     y = x**2 + rnd.normal(0, 1, 100)  # Quadratic relationship, note: will also be non-normal distribution for linear, but would be normal if it was a non-linear model
     data = pd.DataFrame({'X': x, 'Y': y})
@@ -88,6 +88,7 @@ if type == 5:
 #### Apply an OLS linear regression model to the data and print the model summary
 # Fit the linear regression model
 model = sm.OLS(y, X).fit()
+print()
 print(model.summary())
 
 ####
@@ -146,8 +147,9 @@ fig.tight_layout()
 alpha = 0.05
 jb_name = ["Jarque-Bera", "Chi^2 two-tail prob.", "Skew", "Kurtosis"]
 jb_test = sms.jarque_bera(model.resid)
-print("\nNORMALITY TEST:")
-print("Jarque-Bera test results:")
+print()
+print("\n#### NORMALITY TEST ####:")
+print("\n1. Jarque-Bera test results:")
 for name, value in lzip(jb_name, jb_test):
     print(f"{name}: {value}")
 if jb_test[1] < alpha:
@@ -158,7 +160,7 @@ else:
 # Omni test
 omni_name = ["Chi^2", "Two-tail probability"]
 omni_test = sms.omni_normtest(model.resid)
-print("\nOmni test results:")
+print("\n2. Omni test results:")
 for name, value in lzip(omni_name, omni_test):
     print(f"{name}: {value}")
 if omni_test[1] < alpha:
@@ -170,8 +172,8 @@ else:
 # Breusch-Pagan test
 bp_name = ["Lagrange multiplier statistic", "p-value", "f-value", "f p-value"]
 bp_test = sms_diag.het_breuschpagan(model.resid, model.model.exog)
-print("\nHOMOSCEDASTICITY TEST:")
-print("Breusch-Pagan test results:")
+print("\n#### HOMOSCEDASTICITY TEST ####:")
+print("\n1. Breusch-Pagan test results:")
 for name, value in lzip(bp_name, bp_test):
     print(f"{name}: {value}")
 if bp_test[1] < alpha:
@@ -182,7 +184,7 @@ else:
 # Goldfeld-Quandt test
 gq_name = ["F statistic", "p-value"]
 gq_test = sms_diag.het_goldfeldquandt(model.resid, model.model.exog)
-print("\nGoldfeld-Quandt test results:")
+print("\n2. Goldfeld-Quandt test results:")
 for name, value in lzip(gq_name, gq_test):
     print(f"{name}: {value}")
 if gq_test[1] < alpha:
@@ -194,8 +196,8 @@ else:
 # Harvey-Collier multiplier test
 hc_name = ["t value", "p value"]
 hc_test = sms_linear_hc(model)
-print("\nLINEARITY TEST:")
-print("Harvey-Collier multiplier test results:")
+print("\n#### LINEARITY TEST ####:")
+print("\n1. Harvey-Collier multiplier test results:")
 for name, value in lzip(hc_name, hc_test):
     print(f"{name}: {value}")
 if hc_test[1] < alpha:
@@ -203,5 +205,5 @@ if hc_test[1] < alpha:
 else:
     print("The linear specification is correct (fail to reject null hypothesis)")
 
-# Plot all plots
+# Plot the plots
 plt.show()
