@@ -6,6 +6,13 @@ from matplotlib.lines import Line2D
 from skimage.filters import sobel
 import os
 
+# =================================================
+# Note: This script is intended to be called by other, not run itself
+# This script performs Morphological Geodesic Active Contour (MGAC) segmentation on a brain CT slice, 
+# utilizing various image processing techniques to improve contrast and visualize the segmentation results.
+# =================================================
+
+
 # Load a DICOM CT slice and convert it to Hounsfield units
 def load_dicom_slice(dicom_file):
     dataset = pydicom.dcmread(dicom_file)
@@ -96,11 +103,13 @@ def plot_results_mgac(ct_slice, segmented_brain, evolution, gimage, save_path, d
 # Main script
 if __name__ == '__main__':
     # Load the DICOM CT slice
-    dicom_file = '/home/richard/Richard/RS_git/RS-git-test/000_000_001/SCANS/1/DICOM/vhf.1630.dcm'  # INSERT FILE NAME HERE
+    dicom_file = '/home/richard/Richard/RR-personal-repo/Data/Extract_01/Input/000_000_001/SCANS/1/DICOM/vhf.1521.dcm'  # INSERT FILE NAME HERE
     ct_slice = load_dicom_slice(dicom_file)
     # Define the seed point for the MGAC segmentation
     seed = (250, 250)  # Replace this with the desired seed point
     # Perform MGAC segmentation
     segmented_brain, evolution, gimage = segment_brain_slice_mgac(ct_slice, seed)
     # Plot the results
-    plot_results_mgac(ct_slice, segmented_brain, evolution, gimage)
+    save_path = '/home/richard/Richard/RR-personal-repo/Data/Extract_01/Output/output' 
+    plot_results_mgac(ct_slice, segmented_brain, evolution, gimage, save_path, dicom_file) # INSERT SAVE PATH HERE
+
